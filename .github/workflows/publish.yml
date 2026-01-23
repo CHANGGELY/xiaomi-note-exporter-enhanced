@@ -1,0 +1,86 @@
+name: Publish
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g., 1.0.0)"
+        required: true
+        type: string
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+
+  publish:
+    runs-on: windows-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Publish
+        run: dotnet publish -c Release -p:PublishProfile=FolderProfile -p:PublishDir=${{ github.workspace }}/publish
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: publish-folder
+          path: ${{ github.workspace }}/publish
+
+  create-release:
+    runs-on: windows-latest
+    needs: publish
+    steps:
+      - name: Download publish artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: publish-folder
+          path: ${{ github.workspace }}/publish
+
+      - name: Create ZIP file
+        run: |
+          Compress-Archive -Path ./publish/* -DestinationPath ./release-win-x86.zip -Force
+        shell: pwsh
+
+      - name: Attest release artifact
+        uses: actions/attest-build-provenance@v3.1.0
+        with:
+          subject-path: ./release-win-x86.zip
+
+      - name: Create Draft Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ inputs.version }}
+          name: Release v${{ inputs.version }}
+          draft: true
+          artifacts: ./release-win-x86.zip
+          token: ${{ secrets.GITHUB_TOKEN }}

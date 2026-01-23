@@ -1,0 +1,24 @@
+# IDE / build
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Runtime / logs
+chromedriver.log
+profile_dir.txt
+
+# Export outputs (DO NOT COMMIT)
+exported_notes_*/
+images_*/
+**/progress.txt
+**/manifest.txt
+**/manifest.json
+**/*.manifest.txt
+**/*.manifest.json
+chrome_user_data*/
+duplicates/
+legacy_originals/
