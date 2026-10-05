@@ -17,10 +17,10 @@ jobs:
   build-and-test:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@8e6bd2905eef86446227f003dda1deb3916c4aaf # v2
         with:
           dotnet-version: 8.0.x
 
@@ -37,10 +37,10 @@ jobs:
     runs-on: windows-latest
     needs: build-and-test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@8e6bd2905eef86446227f003dda1deb3916c4aaf # v2
         with:
           dotnet-version: 8.0.x
 
@@ -51,7 +51,7 @@ jobs:
         run: dotnet publish -c Release -p:PublishProfile=FolderProfile -p:PublishDir=${{ github.workspace }}/publish
 
       - name: Upload publish artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: publish-folder
           path: ${{ github.workspace }}/publish
@@ -61,7 +61,7 @@ jobs:
     needs: publish
     steps:
       - name: Download publish artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: publish-folder
           path: ${{ github.workspace }}/publish
@@ -72,12 +72,12 @@ jobs:
         shell: pwsh
 
       - name: Attest release artifact
-        uses: actions/attest-build-provenance@v3.1.0
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-path: ./release-win-x86.zip
 
       - name: Create Draft Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1
         with:
           tag: v${{ inputs.version }}
           name: Release v${{ inputs.version }}
